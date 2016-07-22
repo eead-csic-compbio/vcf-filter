@@ -45,8 +45,8 @@ public class VcfReader {
 
     public int num;
     public String ifile;
-    public String rutin="";
-    public String rutout="";
+    public String pathin="";
+    public String pathout="";
 
     public VCFFileReader VCFreader;
     public Split split;
@@ -213,14 +213,14 @@ public class VcfReader {
        }
     
     public void CreateVCF()throws IOException {
-        VCFreader =new VCFFileReader(new File(rutin));
-        if(rutout.isEmpty()){
+        VCFreader =new VCFFileReader(new File(pathin));
+        if(pathout.isEmpty()){
                 vcfwriter=VariantContextWriterFactory.createVcf(null, System.out,
                 VCFreader.getFileHeader().getSequenceDictionary(),DEFAULT_OPTIONS);
         }
         else {
-                FileOutputStream outputstream= new FileOutputStream(new File(rutout));
-                vcfwriter=VariantContextWriterFactory.createVcf(new File(rutout), outputstream,
+                FileOutputStream outputstream= new FileOutputStream(new File(pathout));
+                vcfwriter=VariantContextWriterFactory.createVcf(new File(pathout), outputstream,
                 VCFreader.getFileHeader().getSequenceDictionary(),DEFAULT_OPTIONS);
 
         }
@@ -259,8 +259,8 @@ public class VcfReader {
     public void SelectGenotype() throws IOException {
        
          VCFHeader header= new VCFHeader(VCFreader.getFileHeader().getMetaDataInInputOrder(), set);
-         FileOutputStream outputstream= new FileOutputStream(new File(rutout));
-         vcfwriter=VariantContextWriterFactory.createVcf(new File(rutout), 
+         FileOutputStream outputstream= new FileOutputStream(new File(pathout));
+         vcfwriter=VariantContextWriterFactory.createVcf(new File(pathout), 
                 outputstream, VCFreader.getFileHeader().getSequenceDictionary(),DEFAULT_OPTIONS);
      
           vcfwriter.writeHeader(header); 
@@ -299,7 +299,7 @@ public class VcfReader {
     
     public void Split(){
         Split splits= new Split();
-        splits.ifile=rutin;
+        splits.ifile=pathin;
         splits.init();
     }
     
@@ -326,10 +326,10 @@ public class VcfReader {
     public void createidx() {
     
     int binSize = 16000;
-    File inputFile = new File(rutin);
+    File inputFile = new File(pathin);
     VCFCodec codec = new VCFCodec();
 
-    String idxFile=rutin+".idx";
+    String idxFile=pathin+".idx";
 
   
     AbstractIndex idx= IndexFactory.createLinearIndex(inputFile, codec, binSize); 
@@ -432,10 +432,10 @@ public class VcfReader {
     public void menu() throws IOException {
         
         Scanner sc= new Scanner(System.in);   
-        System.out.println("First, Introduce your INPUT rout");             
-        rutin=sc.next();
-        System.out.println("Now, Introduce your OUTPUT rout");
-        rutout=sc.next();
+        System.out.println("First, type the path to your INPUT file");             
+        pathin=sc.next();
+        System.out.println("Now, type the path to your OUTPUT file");
+        pathout=sc.next();
         int opt;
         do {
         System.out.println("-----------------------------");
@@ -444,7 +444,7 @@ public class VcfReader {
         System.out.println("Option 1- Filter by minimun General DP in VariantContext");
         System.out.println("Option 2- Filter by minimun  DP in each Genotype");
         System.out.println("Option 3- Filter by maximun of missing data of genotypes");
-        System.out.println("Option 4- Give a sample in a specific position");
+        System.out.println("Option 4- Get a sample in a specific position");
         System.out.println("Option 5- Obtain number of SNPS with minimun  sample GQ in each Genotype in a specific distance in kb");
         System.out.println("Option 6- Select SNPs in an interval in a concrete cromosome");
         System.out.println("Option 7- Filter by Biallelic SNPs");
@@ -461,7 +461,7 @@ public class VcfReader {
         switch (opt) {
 
             case 1:
-                System.out.println("Give the minimun General DP");
+                System.out.println("Type the minimum General DP");
                 DPG=sc.nextInt();
                 CreateVCF();
                 MinDPGen();
@@ -469,7 +469,7 @@ public class VcfReader {
             break;
             
             case 2:
-                System.out.println("Give the minimun sample DP");
+                System.out.println("Type the minimum sample DP");
                 DPS=sc.nextInt();
                 CreateVCF();
                 MinDPSample();
@@ -477,7 +477,7 @@ public class VcfReader {
             break;
                 
             case 3:
-                System.out.println("Give the % of maximum missing data per variantcontext");
+                System.out.println("Type the % of maximum missing data per variantcontext");
                 NData=sc.nextInt();
                 CreateVCF();
                 MissingData();
@@ -485,11 +485,11 @@ public class VcfReader {
             break;
             
             case 4:
-                System.out.println("Give the sample to find");
+                System.out.println("Type the sample to find");
                 sample=sc.next();
-                System.out.println("Give the specific position");
+                System.out.println("Type the specific position");
                 position=sc.nextInt();
-                System.out.println("Give the specific cromosome");
+                System.out.println("Type the specific chromosome");
                 crom=sc.next();
                 FindSamVar();
                 System.out.println(variante);
@@ -497,9 +497,9 @@ public class VcfReader {
             break;
                         
             case 5:
-                System.out.println("Give the minimun sample GQ");
+                System.out.println("Type the minimun sample GQ");
                 minGQ=sc.nextInt();
-                System.out.println("Give the distance in kb");
+                System.out.println("Type the distance in Kb");
                 Size=sc.nextInt();
                 CreateVCF();
                 MinGQkb();
@@ -526,7 +526,7 @@ public class VcfReader {
             break;
             
             case 8:
-                System.out.println("Introduce the number of minimum allele frequency. You have to put , instead of .");
+                System.out.println("Introduce the number of minimum allele frequency. Use , instead of .");
                 frecrar=sc.nextDouble();
                 CreateVCF();
                 Variantrare();
@@ -547,7 +547,7 @@ public class VcfReader {
             break;
             
             case 11:
-                System.out.println("Write your samples that you want to select in order an separe by ;");
+                System.out.println("Write selected samples separated by ;");
                 String samples1=sc.next();
                 set= new HashSet();
                 String [] samples2=samples1.split(";");
@@ -586,19 +586,19 @@ public class VcfReader {
 
           
         if (cmd.hasOption("input")){
-            rutin=cmd.getOptionValues("input")[0];
+            pathin=cmd.getOptionValues("input")[0];
             createidx();
         }
         
-        if (rutin.isEmpty()){  
+        if (pathin.isEmpty()){  
         }
         else {
-        VCFreader =new VCFFileReader(new File(rutin));
+        VCFreader =new VCFFileReader(new File(pathin));
         }
            
 
         if (cmd.hasOption("output")){
-          rutout=cmd.getOptionValues("output")[0];
+          pathout=cmd.getOptionValues("output")[0];
         } 
         
         if(cmd.hasOption("DP")) {  
@@ -758,7 +758,7 @@ public class VcfReader {
                                 .withDescription("Maximum Heterozigous samples\n percentage, example: -maxHet 90" )
                                 .create( "maxHet" );
         
-        Option nr = OptionBuilder.withArgName("integer in kB")
+        Option nr = OptionBuilder.withArgName("integer in Kb")
                                 .hasArgs(1)
                                 .withDescription("Select top quality variant in window\n example: -nr 100" )
                                 .create( "nr" );
@@ -845,15 +845,15 @@ public class VcfReader {
         }
         
         if (input.isEmpty()==false){
-         rutin=input;
+         pathin=input;
         }
         
       
         if (output.isEmpty()){
-        rutout="";
+        pathout="";
         }
         else {
-        rutout=output;
+        pathout=output;
         }
 
        
@@ -970,7 +970,7 @@ public class VcfReader {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("help menu", options);
         
-        System.out.println("This utility builds on HTSJDK classes, apache commons CLI classes and supports VCF version supported by them.");
+        System.out.println("This utility builds on HTSJDK classes, apache commons CLI classes and supports VCF versions supported therein.");
         System.out.println("Eduardo Candeal, Carlos P Cantalapiedra, Bruno Contreras-Moreira\n" +
 "EEAD-CSIC 2016");
     }
