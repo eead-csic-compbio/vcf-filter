@@ -3,9 +3,10 @@ Java tool to filter an input VCF file a la carte, based on HTSJDK and Apache com
 
 
 # dependencies
-Java 1.8 
-<picard.jar>(https://github.com/broadinstitute/picard) (included in </.lib>)
-<commons-cli-1.3.1.jar>(https://commons.apache.org/proper/commons-cli) (included in </.lib>)
+|Software|Source|
+|Java 1.8|<https://www.java.com/es/download>|
+|picard.jar , included in [lib/](/.lib/)|<https://github.com/broadinstitute/picard>|
+|commons-cli-1.3.1.jar, included in [lib/](./lib/)|<https://commons.apache.org/proper/commons-cli>|
 
 # authors
 Eduardo Candeal, Carlos P Cantalapiedra, Bruno Contreras-Moreira
