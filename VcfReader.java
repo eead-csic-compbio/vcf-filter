@@ -1,13 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package vcfreader;
-
 /**
  *
- * @author Edu
+ * @author Eduardo Candeal 2016
  */
 
 import htsjdk.tribble.index.AbstractIndex;
@@ -225,11 +218,7 @@ public class VcfReader {
 
         }
 
-
-
         vcfwriter.writeHeader(VCFreader.getFileHeader());
-
-        
     }
     
     public void FindSamVar(){
@@ -450,7 +439,7 @@ public class VcfReader {
         System.out.println("Option 7- Filter by Biallelic SNPs");
         System.out.println("Option 8- Filter by minimum allele frequency");
         System.out.println("Option 9- Filter by % maximun of Heterozigotes samples");
-        System.out.println("Option 10- Split VCF File in to SNPs and Indels");
+        //System.out.println("Option 10- Split VCF File in to SNPs and Indels");
         System.out.println("Option 11- Select samples and generate new vcf file");
         System.out.println("Option 12- Select the best quality variant in your desired distance");
         System.out.println("Press 0 to leave");
@@ -541,10 +530,9 @@ public class VcfReader {
             
             break;
             
-            case 10:
-                Split();
-              
-            break;
+            //case 10:
+            //    Split();
+            //break;
             
             case 11:
                 System.out.println("Write selected samples separated by ;");
@@ -582,31 +570,28 @@ public class VcfReader {
     
     public void ReadOptions() throws IOException {
        
-
-
-          
         if (cmd.hasOption("input")){
             pathin=cmd.getOptionValues("input")[0];
             createidx();
         }
         
         if (pathin.isEmpty()){  
+            /* VCFreader = new VCFFileReader(System.in); // does not work as 
+            VCFFileReader constructor expects a java.io.File file, not a stream */
         }
         else {
-        VCFreader =new VCFFileReader(new File(pathin));
+            VCFreader = new VCFFileReader(new File(pathin));
         }
            
 
         if (cmd.hasOption("output")){
-          pathout=cmd.getOptionValues("output")[0];
+              pathout=cmd.getOptionValues("output")[0];
         } 
         
         if(cmd.hasOption("DP")) {  
                 DPG=Integer.parseInt(cmd.getOptionValues("DP")[0]);
                 CreateVCF();
-                MinDPGen();
-                System.out.println("hola");
-                
+                MinDPGen();  
             }
         if (cmd.hasOption("sDP")) {     
                 DPS=Integer.parseInt(cmd.getOptionValues("sDP")[0]);
@@ -648,6 +633,7 @@ public class VcfReader {
         }
         
         if (cmd.hasOption("call")){
+        
                 sample=cmd.getOptionValues("call")[0];
                 FindSamVar();
                 System.out.println(variante);
@@ -684,10 +670,9 @@ public class VcfReader {
         
         }
         
-        if (cmd.hasOption("split")){
-            Split();
-        
-        }
+        //if (cmd.hasOption("split")){
+        //    Split();
+        //}
         
 
         
@@ -696,78 +681,77 @@ public class VcfReader {
     public void CreateOptions(){
         
         
-        Option input = OptionBuilder.withArgName( "path to input uncompressed VCF file" )                    
+        Option input = OptionBuilder.withArgName( "path to input VCF file" )                    
                                 .hasArgs(1)
-                                .withDescription(  "optional, by default reads from STDIN" )
+                                .withDescription("Required, must be uncompressed. Will index it." )
                                 .create( "input" );
         
         Option output = OptionBuilder.withArgName( "path to output VCF file" )                    
                                 .hasArgs(1)
-                                .withDescription("optional, by default prints to STDOUT")
+                                .withDescription("Optional, by default prints to STDOUT.")
                                 .create( "output" );        
         
         Option DP = OptionBuilder.withArgName( "integer" )
                                 .hasArgs(1)
-                                .withDescription("Minimum overall DP of each variant (row) in the input VCF")
+                                .withDescription("Minimum overall DP of each variant (row) in the input.")
                                 .create( "DP" );
         
         Option sDP = OptionBuilder.withArgName( "integer" )
                                 .hasArgs(1)
-                                .withDescription("Minimum DP of each sample")
+                                .withDescription("Minimum DP of each sample.")
                                 .create( "sDP" );
         
         Option missing = OptionBuilder.withArgName( "double" )
                                 .hasArgs(1)
-                                .withDescription("Allowed missing data in each variant percentage \n example: -missing 5 ")
+                                .withDescription("Allowed % of missing data in each variant. Example: -missing 5")
                                 .create( "missing" );
         
         Option interval = OptionBuilder.withArgName( "integer" )
                                 .hasArgs(2)
-                                .withDescription("Select a particular interval requires -crom \n example: -interval 1000 1000 ")
+                                .withDescription("Select interval of coordinates, requires -chr . Example: -interval 1000 2000")
                                 .create( "interval" );
         
         Option crom = OptionBuilder.withArgName( "String" )
                                 .hasArgs(1)
-                                .withDescription( "Select the cromosome of your interest" )
-                                .create( "crom" );
+                                .withDescription( "Select a chromosome of interest. Example: -chr Bd1" )
+                                .create( "chr" );
         
         Option pos = OptionBuilder.withArgName( "integer" )
                                 .hasArgs(1)
-                                .withDescription("Select the position of your interest")
+                                .withDescription("Select a precise position. Example: -pos 1234")
                                 .create( "pos" );
         
-        Option sample = OptionBuilder.withArgName( "String: samples names" )
+        Option sample = OptionBuilder.withArgName( "String: sample names" )
                                 .hasArgs()
-                                .withDescription("Select a subset of samples\n example: -sample sample1,sample2" )
+                                .withDescription("Select a subset of samples. Example: -sample sample1,sample2" )
                                 .create( "sample" );
         
         Option call = OptionBuilder.withArgName( "String: sample name" )
                                 .hasArgs(1)
-                                .withDescription("requires -interval, -sample \n example: -sample sample1 -crom Bd1 -pos 1000" )
+                                .withDescription("Requires -pos & -sample. Example: -call sample1 -chr Bd1 -pos 1000" )
                                 .create( "call" );
         
-        Option bi = new Option( "bi", "Select only biallelic genotypes " );
+        Option bi = new Option( "bi", "Select only biallelic genotypes." );
         
         Option MAF = OptionBuilder.withArgName("double")
                                 .hasArgs(1)
-                                .withDescription(  "Minimum allele frequency [0-1]\n example: -MAF 0.05" )
+                                .withDescription("Minimum allele frequency [0-1]. Example: -MAF 0.05" )
                                 .create( "MAF" );
         
         Option maxHet = OptionBuilder.withArgName("double")
                                 .hasArgs(1)
-                                .withDescription("Maximum Heterozigous samples\n percentage, example: -maxHet 90" )
+                                .withDescription("Maximum % of heterozigous samples. Example: -maxHet 90" )
                                 .create( "maxHet" );
         
         Option nr = OptionBuilder.withArgName("integer in Kb")
                                 .hasArgs(1)
-                                .withDescription("Select top quality variant in window\n example: -nr 100" )
+                                .withDescription("Select top quality variant in selected window size, in Kb. Example: -nr 100" )
                                 .create( "nr" );
 
-        
-        Option split = new Option( "split", "Split in two vcf files, SNPs and Indels" );
+        //Option split = new Option( "split", "Split in two VCF files: i)SNPs and ii)Indels" );
         
    
-        Option menu = new Option( "menu", "Select helped menu" );
+        Option menu = new Option( "menu", "Select step-by-step menu." );
 
         options.addOption(DP);
         options.addOption(input);
@@ -784,48 +768,41 @@ public class VcfReader {
         options.addOption(nr);
         options.addOption(call);
         options.addOption(menu);
-        options.addOption(split);
-
-        
-
-        
-                
-
-    
+        //options.addOption(split);
     }
     
     public void command() throws IOException{
         Scanner sc= new Scanner(System.in);
-        System.out.println("This is an application for get specific information in a VCF file");
-        System.out.println("In most cases generates a new VCF file in the desirable output rout");
+        System.out.println("This is a tool to filter/extract/subset information from a VCF file.");
+        System.out.println("In most cases it generates a new VCF file.");
 
-        System.out.println("\033[0;1mOptions\033[0m"+"\n");
+        System.out.println("[Options]\n");
         System.out.println("GeneralDP : Introduce the Minimum DP in each variantcontext");
         System.out.println("SampleDP : Introduce the Minimum DP per sample");
         System.out.println("MissingData : Introduce the Maximun Missing data in each variantcontext");
-        System.out.println("Usage example: GeneralDP [minDP] [input=your interest VCF file rout] [output=your interest output rout]");
+        System.out.println("Usage example: GeneralDP [minDP] [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");
-        System.out.println("Find : Introduce the sample in a specific cromosome in specific localitation");
-        System.out.println("Usage example: Find [namesample] [namechromosome] [position] [input=your interest VCF file rout]");
+        System.out.println("Find : Introduce the sample in a specific chromosome in specific localitation");
+        System.out.println("Usage example: Find [namesample] [namechromosome] [position] [input=path to input VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");
-        System.out.println("SelectSNPs : Select SNPs in a concrete interval");
-        System.out.println("Usage example: SelectSNPs [inters=1000-2000] [namecromosome] [input=your interest VCF file rout] [output=your interest output rout]");
+        System.out.println("SelectSNPs : Select SNPs in a particular interval");
+        System.out.println("Usage example: SelectSNPs [inters=1000-2000] [namecromosome] [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");       
-        System.out.println("Biallelic: Select only the SNPs that are Biallelic");
-        System.out.println("Usage example: Biallelic [input=your interest VCF file rout] [output=your interest output rout]");
+        System.out.println("Biallelic: Select only the SNPs that are biallelic");
+        System.out.println("Usage example: Biallelic [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");      
         System.out.println("MAF : Select your minimun allele frequency ");
-        System.out.println("MaxHet : Select a threshold of maximum Heterozigotes samples");
-        System.out.println("Usage example: MAF [MAF] [input=your interest VCF file rout] [output=your interest output rout]");
+        System.out.println("MaxHet : Select % of accepted heterozygous samples");
+        System.out.println("Usage example: MAF [MAF] [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");      
-        System.out.println("Split: Split your VCF file in SNPs and indels");
-        System.out.println("Usage example: Split [input=your interest VCF file rout]");
-        System.out.println("--------------------------------------------------------------------------------------------------------");      
-        System.out.println("SelectSamples: Generates new vcf file with the sample of your interest, the samples have to separete by ; ");
-        System.out.println("Usage example: SelectSamples [samplename1;samplename2;..;] [input=your interest VCF file rout] [output=your interest output rout]");
+        //System.out.println("Split: Split your VCF file in SNPs and indels");
+        //System.out.println("Usage example: Split [input=path to input VCF file]");
+        //System.out.println("--------------------------------------------------------------------------------------------------------");      
+        System.out.println("SelectSamples: Generates new VCF file containing only samples of interest, with names separated by ; ");
+        System.out.println("Usage example: SelectSamples [samplename1;samplename2;..;] [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");
-        System.out.println("BestQuality: Generates new vcf file with the top quality variant in desired distance ");
-        System.out.println("Usage example: BestQuality [distance in Kb] [input=your interest VCF file rout] [output=your interest output rout]");
+        System.out.println("BestQuality: Generates new VCF file with the top quality variant in each set distance interval ");
+        System.out.println("Usage example: BestQuality [distance in Kb] [input=path to input VCF file] [output=path to output VCF file]");
         System.out.println("--------------------------------------------------------------------------------------------------------");
         
        
@@ -857,16 +834,12 @@ public class VcfReader {
         }
 
        
-         
-        
         switch (option[0]) {
 
             case "GeneralDP":
-                
                 DPG=Integer.parseInt(option[1]);
                 CreateVCF();
                 MinDPGen();
-
             break;
             
             case "SampleDP":
@@ -890,7 +863,6 @@ public class VcfReader {
             break;
             
             case "SelectSNPs":
-                
                 String inter[]=option[1].split("=");
                 String inters[]=inter[1].split("-");
 
@@ -918,9 +890,9 @@ public class VcfReader {
                 MinHet();
             break;
             
-            case "Split":
-                Split();
-            break;
+            //case "Split":
+            //    Split();
+            //break;
             
             case "SelectSamples":
                 set= new HashSet();
@@ -940,41 +912,36 @@ public class VcfReader {
             break;
             
             default:
-                System.out.println("Introduce one of the execute options or put it in the apropiate format");
+                System.out.println("Please type run option");
             break;    
                 
         }
 
     
     }
-    public static void main(String[] args)throws IOException, ParseException {
+    
+    public static void main(String[] args) throws IOException, ParseException {
 
      
         options = new org.apache.commons.cli.Options();
         
-        VcfReader vcffile=new VcfReader();
+        VcfReader vcffile = new VcfReader();
         
         vcffile.CreateOptions();
         
         CommandLineParser parser = new DefaultParser(); 
 
-        cmd = parser.parse( options, args);
-        
-        
-
-
-        vcffile.ReadOptions();
-
+        cmd = parser.parse( options, args );
  
+        if(args.length<1) {
         
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("help menu", options);
-        
-        System.out.println("This utility builds on HTSJDK classes, apache commons CLI classes and supports VCF versions supported therein.");
-        System.out.println("Eduardo Candeal, Carlos P Cantalapiedra, Bruno Contreras-Moreira\n" +
-"EEAD-CSIC 2016");
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(" ", options);
+            System.out.println("\nThis utility builds on HTSJDK and handles VCF versions supported there, currently v4.2.");
+            System.out.println("Eduardo Candeal, with help from Carlos P Cantalapiedra and Bruno Contreras-Moreira\nEEAD-CSIC 2016");
+        }
+        else {
+            vcffile.ReadOptions();
+        }
     }
-    
-    
-    
 }
