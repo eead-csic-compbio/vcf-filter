@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use FindBin '$Bin';
+
+if(!-e "$Bin/VcfReader.class") {
+  system("javac -cp $Bin/lib/picard.jar:$Bin/lib/commons-cli-1.3.1.jar:$Bin $Bin/Split.java $Bin/VcfReader.java");
+  
+  if(!-e "$Bin/VcfReader.class") {
+    die "# ERROR : cannot compile vcf-filter, make sure javac is installed in your system\n\n";
+  }
+}
+
+if(grep(/\-h/,@ARGV) || grep(/\-help/,@ARGV)) {
+  system("java -cp lib/picard.jar:lib/commons-cli-1.3.1.jar:. VcfReader");
+}
+else {  
+  open(JAVA, "| java -cp lib/picard.jar:lib/commons-cli-1.3.1.jar:. VcfReader @ARGV"); 
+}  
